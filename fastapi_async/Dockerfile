@@ -4,12 +4,25 @@ FROM python:3.11-slim
 # Set working directory in the container
 WORKDIR /app
 
-# Copy the project files
-COPY pyproject.toml .
-COPY app.py .
+# Install uv
+RUN apt-get update && apt-get install -y curl && \
+    curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install dependencies
-RUN pip install --no-cache-dir "fastapi>=0.110.0" "uvicorn>=0.27.1"
+# 设置 uv 的环境变量
+ENV UV_COMPILE_BYTECODE=1 \
+    UV_LINK_MODE=copy
+
+# 设置工作目录
+WORKDIR /app
+
+# 首先只复制依赖相关文件
+COPY uv.lock pyproject.toml /app/
+
+# 安装依赖
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --no-dev
+
+COPY app.py .
 
 # Expose the port the app runs on
 EXPOSE 5050
