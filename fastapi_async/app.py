@@ -10,9 +10,8 @@ from contextlib import asynccontextmanager
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Create tables if they don't exist
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+    # Application startup and shutdown logic
+    # We no longer need to create tables here since we'll use Alembic migrations
     yield
 
 app = FastAPI(lifespan=lifespan)
