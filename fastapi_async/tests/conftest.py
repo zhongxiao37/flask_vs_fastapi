@@ -47,14 +47,21 @@ async def setup_database():
         await conn.run_sync(Base.metadata.drop_all)
 
 
+@pytest_asyncio.fixture
+async def test_session(setup_database):
+    """提供用于测试的数据库会话"""
+    async with TestingSessionLocal() as session:
+        yield session
+
+
 @pytest.fixture
-def client(override_get_session):
+def client(override_get_session, setup_database):
     with TestClient(app) as client:
         yield client
 
 
 @pytest_asyncio.fixture
-async def async_client(override_get_session):
+async def async_client(override_get_session, setup_database):
     # Use ASGI Transport
     async with AsyncClient(
         transport=ASGITransport(app=app),
