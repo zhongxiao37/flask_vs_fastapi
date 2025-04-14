@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from db import get_session, engine, Base
 from models import User, Order
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from contextlib import asynccontextmanager
 
@@ -27,8 +27,7 @@ class UserResponse(BaseModel):
     username: str
     email: str
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class OrderCreate(BaseModel):
     amount: float
@@ -40,8 +39,7 @@ class OrderResponse(BaseModel):
     amount: float
     status: str
     
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 @app.get("/ping")
 async def ping():
